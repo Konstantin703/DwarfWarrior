@@ -80,6 +80,9 @@ Content/InfinityBladeEffects/*
 Content/Maps/*
 Content/MeshTools/*
 Content/StarterContent/*
+Content/Sounds/*
+Content/DemoRoom/*
+Content/ExampleContent/*
 
 # Old source files
 Source/FirstProject/OLD/*
