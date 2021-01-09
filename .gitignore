@@ -72,3 +72,15 @@ Plugins/*/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+
+# Heavy and unnesessary content files
+Content/Assets/*
+Content/InfinityBladeAdversaries/*
+Content/InfinityBladeEffects/*
+Content/Maps/*
+Content/MeshTools/*
+Content/StarterContent/*
+
+# Old source files
+Source/FirstProject/OLD/*
+
