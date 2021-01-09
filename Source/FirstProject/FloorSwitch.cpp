@@ -1,7 +1,6 @@
 #include "FloorSwitch.h"
 #include "Components/BoxComponent.h"
 
-
 // Sets default values
 AFloorSwitch::AFloorSwitch()
 {
