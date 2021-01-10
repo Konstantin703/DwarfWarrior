@@ -1,8 +1,9 @@
 #include "Pickup.h"
+#include "MainCharacterBase.h"
 
 APickup::APickup()
 {
-
+	CoinAmount = 5;
 }
 
 void APickup::OnOverlapBegin(
@@ -12,7 +13,14 @@ void APickup::OnOverlapBegin(
 {
 	Super::OnOverlapBegin(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 
-	UE_LOG(LogTemp, Warning, TEXT("APickup::On Overlap Begin()"));
+	if (OtherActor)
+	{
+		AMainCharacterBase* MainCharacter = Cast<AMainCharacterBase>(OtherActor);
+		if (MainCharacter)
+		{
+			MainCharacter->IncrementCoins(CoinAmount);
+		}
+	}
 }
 
 void APickup::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)

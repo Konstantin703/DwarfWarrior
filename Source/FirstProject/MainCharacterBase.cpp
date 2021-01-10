@@ -8,7 +8,7 @@
 AMainCharacterBase::AMainCharacterBase()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	//PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	// create camera boom (pulls towards the character in the case of collision
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -41,6 +41,14 @@ AMainCharacterBase::AMainCharacterBase()
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 540.f, 0.f); // ... at this rotation rate
 	GetCharacterMovement()->JumpZVelocity = 650.f;
 	GetCharacterMovement()->AirControl = 0.2f;
+
+	MaxHealth = 100.f;
+	Health = MaxHealth;
+
+	MaxStamina = 350.f;
+	Stamina = MaxStamina;
+
+	Coins = 5;
 }
 
 // Called when the game starts or when spawned
@@ -111,4 +119,33 @@ void AMainCharacterBase::TurnAtRate(float InRate)
 void AMainCharacterBase::LookUpAtRate(float InRate)
 {
 	AddControllerPitchInput(InRate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+}
+
+FText AMainCharacterBase::CoinsToText()
+{
+	FString CoinsString = FString::FromInt(Coins);
+	return FText::FromString(CoinsString);
+}
+
+void AMainCharacterBase::DecrementHealth(float Amount)
+{
+	if (Health - Amount <= 0.f)
+	{
+		Health = 0.f;
+		Die();
+	}	
+	else
+	{
+		Health -= Amount;
+	}		
+}
+
+void AMainCharacterBase::IncrementCoins(int32 Amount)
+{
+	Coins += Amount;
+}
+
+void AMainCharacterBase::Die()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Main Character is dead!!"));
 }

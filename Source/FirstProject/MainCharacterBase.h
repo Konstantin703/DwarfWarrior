@@ -28,6 +28,22 @@ public:
 	float BaseTurnRate;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	float BaseLookUpRate;
+	
+	/**
+	/* Player Stats
+	*/
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerStats")
+	float MaxHealth;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerStats")
+	float Health;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerStats")
+	float MaxStamina;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerStats")
+	float Stamina;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerStats")
+	int32 Coins;
 
 protected:
 	// Called when the game starts or when spawned
@@ -58,4 +74,17 @@ public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
+	UFUNCTION(BlueprintCallable, Category = "PlayerStats")
+	FORCEINLINE float GetHealthPercent() { return Health / MaxHealth; }
+
+	UFUNCTION(BlueprintCallable, Category = "PlayerStats")
+	FORCEINLINE float GetStaminaPercent() { return Stamina / MaxStamina; }
+
+	UFUNCTION(BlueprintCallable, Category = "PlayerStats")
+	FText CoinsToText();
+
+	void DecrementHealth(float Amount);
+	void IncrementCoins(int32 Amount);
+
+	void Die();
 };

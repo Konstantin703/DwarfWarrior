@@ -5,7 +5,7 @@
 #include "Pickup.generated.h"
 
 /**
- * 
+ *  Object adding coins to the main charater
  */
 UCLASS()
 class FIRSTPROJECT_API APickup : public AItem
@@ -13,6 +13,9 @@ class FIRSTPROJECT_API APickup : public AItem
 	GENERATED_BODY()
 public:
 	APickup();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Coins")
+	int32 CoinAmount;
 
 	virtual void OnOverlapBegin(
 		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
