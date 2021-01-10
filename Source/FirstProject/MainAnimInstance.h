@@ -4,7 +4,7 @@
 #include "Animation/AnimInstance.h"
 #include "MainAnimInstance.generated.h"
 
-//class APawn;
+class AMainCharacterBase;
 
 UCLASS()
 class FIRSTPROJECT_API UMainAnimInstance : public UAnimInstance
@@ -20,7 +20,10 @@ public:
 	float MovementSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Movement)
 	bool bIsInAir;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Movement)
 	APawn* Pawn;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Movement)
+	AMainCharacterBase* MainCharacter;
 	
 };

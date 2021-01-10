@@ -8,7 +8,7 @@
 AMainCharacterBase::AMainCharacterBase()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	// create camera boom (pulls towards the character in the case of collision
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -45,10 +45,22 @@ AMainCharacterBase::AMainCharacterBase()
 	MaxHealth = 100.f;
 	Health = MaxHealth;
 
-	MaxStamina = 350.f;
+	MaxStamina = 150.f;
 	Stamina = MaxStamina;
 
 	Coins = 5;
+
+	RunningSpeed = 650.f;
+	SprintingSpeed = 950.f;
+
+	bSprintEnabled = false;
+
+	// Initialize enums
+	MovementStatus = EMovementStatus::EMS_Normal;
+	StaminaStatus = EStaminaStatus::ESS_Normal;
+
+	StaminaDrainRate = 25.f;
+	MinSprintStamina = 50.f;
 }
 
 // Called when the game starts or when spawned
@@ -63,6 +75,75 @@ void AMainCharacterBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	float DeltaStamina = StaminaDrainRate * DeltaTime;
+
+	switch (StaminaStatus)
+	{
+	case EStaminaStatus::ESS_Normal:
+		if (bSprintEnabled)
+		{
+			if ( (Stamina - DeltaStamina) <= MinSprintStamina )
+				SetStaminaStatus(EStaminaStatus::ESS_BelowMinimum);
+			
+			Stamina -= DeltaStamina;
+			SetMovementStatus(EMovementStatus::EMS_Sprinting);				
+		}
+		else
+		{
+			if ( (Stamina + DeltaStamina) >= MaxStamina )
+				Stamina = MaxStamina;
+			else
+				Stamina += DeltaStamina;
+			
+			SetMovementStatus(EMovementStatus::EMS_Normal);
+		}
+		break;
+	case EStaminaStatus::ESS_BelowMinimum:
+		if (bSprintEnabled)
+		{
+			if ( (Stamina - DeltaStamina) <= 0.f )
+			{
+				SetStaminaStatus(EStaminaStatus::ESS_Exhausted);
+				Stamina = 0.f;
+				SetMovementStatus(EMovementStatus::EMS_Normal);
+			}
+			else
+			{
+				Stamina -= DeltaStamina;
+				SetMovementStatus(EMovementStatus::EMS_Sprinting);
+			}				
+		}
+		else
+		{
+			if ( (Stamina + DeltaStamina) >= MinSprintStamina )
+				SetStaminaStatus(EStaminaStatus::ESS_Normal);
+
+			Stamina += DeltaStamina;
+			SetMovementStatus(EMovementStatus::EMS_Normal);			
+		}
+		break;
+	case EStaminaStatus::ESS_Exhausted:
+		if (bSprintEnabled)
+		{
+			Stamina = 0.f;
+		}			
+		else
+		{
+			SetStaminaStatus(EStaminaStatus::ESS_ExhaustedRecovering);
+			Stamina += DeltaStamina;
+		}
+		SetMovementStatus(EMovementStatus::EMS_Normal);
+		break;
+	case EStaminaStatus::ESS_ExhaustedRecovering:
+		if ( (Stamina + DeltaStamina) >= MinSprintStamina )
+			SetStaminaStatus(EStaminaStatus::ESS_Normal);
+
+		Stamina += DeltaStamina;
+		SetMovementStatus(EMovementStatus::EMS_Normal);		
+		break;
+	default:
+		;
+	}
 }
 
 // Called to bind functionality to input
@@ -73,6 +154,9 @@ void AMainCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 	PlayerInputComponent->BindAction("Jump", EInputEvent::IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", EInputEvent::IE_Released, this, &ACharacter::StopJumping);
+
+	PlayerInputComponent->BindAction("Sprint", EInputEvent::IE_Pressed, this, &AMainCharacterBase::SprintEnabled);
+	PlayerInputComponent->BindAction("Sprint", EInputEvent::IE_Released, this, &AMainCharacterBase::SprintDisabled);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMainCharacterBase::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMainCharacterBase::MoveRight);
@@ -109,6 +193,16 @@ void AMainCharacterBase::MoveRight(float InValue)
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		AddMovementInput(Direction, InValue);
 	}
+}
+
+void AMainCharacterBase::SprintEnabled()
+{
+	bSprintEnabled = true;
+}
+
+void AMainCharacterBase::SprintDisabled()
+{
+	bSprintEnabled = false;
 }
 
 void AMainCharacterBase::TurnAtRate(float InRate)
@@ -148,4 +242,13 @@ void AMainCharacterBase::IncrementCoins(int32 Amount)
 void AMainCharacterBase::Die()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Main Character is dead!!"));
+}
+
+void AMainCharacterBase::SetMovementStatus(EMovementStatus Status)
+{
+	MovementStatus = Status;
+	if (MovementStatus == EMovementStatus::EMS_Sprinting)
+		GetCharacterMovement()->MaxWalkSpeed = SprintingSpeed;
+	else
+		GetCharacterMovement()->MaxWalkSpeed = RunningSpeed;
 }
