@@ -7,6 +7,8 @@
 class USpringArmComponent;
 class UCameraComponent;
 class AWeapon;
+class AItem;
+class UAnimaMontage;
 
 UENUM(BlueprintType)
 enum class EMovementStatus : uint8
@@ -37,6 +39,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Items")
 	AWeapon* EquippedWeapon;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Items")
+	AItem* ActiveOverlappingItem;
 
 	// Camera boom positioning camera behind the character
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -84,6 +88,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float MinSprintStamina;
 
+	bool bActionEnabled;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anims")
+	bool bAttacking;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anims")
+	UAnimMontage* CombatMontage;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -114,6 +126,9 @@ public:
 	*/
 	void LookUpAtRate(float InRate);
 
+	void ActionEnabled();
+	void ActionDisabled();
+
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
@@ -136,5 +151,10 @@ public:
 
 	FORCEINLINE void SetStaminaStatus(EStaminaStatus Status) { StaminaStatus = Status; }
 
-	FORCEINLINE void SetEquippedWeapon(AWeapon* InWeapon) { EquippedWeapon = InWeapon; }
+	void SetEquippedWeapon(AWeapon* InWeapon);
+	FORCEINLINE AWeapon* GetEquippedWeapon() { return EquippedWeapon; }
+
+	FORCEINLINE void SetActiveOverlappingItem(AItem* InItem) { ActiveOverlappingItem = InItem; }
+
+	void Attack();
 };

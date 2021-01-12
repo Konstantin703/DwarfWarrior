@@ -3,6 +3,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Weapon.h"
+#include "Animation/AnimInstance.h"
 
 // Sets default values
 AMainCharacterBase::AMainCharacterBase()
@@ -61,6 +63,8 @@ AMainCharacterBase::AMainCharacterBase()
 
 	StaminaDrainRate = 25.f;
 	MinSprintStamina = 50.f;
+
+	bActionEnabled = false;
 }
 
 // Called when the game starts or when spawned
@@ -158,6 +162,9 @@ void AMainCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	PlayerInputComponent->BindAction("Sprint", EInputEvent::IE_Pressed, this, &AMainCharacterBase::SprintEnabled);
 	PlayerInputComponent->BindAction("Sprint", EInputEvent::IE_Released, this, &AMainCharacterBase::SprintDisabled);
 
+	PlayerInputComponent->BindAction("Action", EInputEvent::IE_Pressed, this, &AMainCharacterBase::ActionEnabled);
+	PlayerInputComponent->BindAction("Action", EInputEvent::IE_Released, this, &AMainCharacterBase::ActionDisabled);
+
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMainCharacterBase::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMainCharacterBase::MoveRight);
 
@@ -215,6 +222,29 @@ void AMainCharacterBase::LookUpAtRate(float InRate)
 	AddControllerPitchInput(InRate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
+void AMainCharacterBase::ActionEnabled()
+{
+	bActionEnabled = true;
+	if (ActiveOverlappingItem)
+	{
+		AWeapon* Weapon = Cast<AWeapon>(ActiveOverlappingItem);
+		if (Weapon)
+		{
+			Weapon->Equip(this);
+			SetActiveOverlappingItem(nullptr);
+		}			
+	}
+	else if (EquippedWeapon)
+	{
+		Attack();
+	}
+}
+
+void AMainCharacterBase::ActionDisabled()
+{
+	bActionEnabled = false;
+}
+
 FText AMainCharacterBase::CoinsToText()
 {
 	FString CoinsString = FString::FromInt(Coins);
@@ -251,4 +281,24 @@ void AMainCharacterBase::SetMovementStatus(EMovementStatus Status)
 		GetCharacterMovement()->MaxWalkSpeed = SprintingSpeed;
 	else
 		GetCharacterMovement()->MaxWalkSpeed = RunningSpeed;
+}
+
+void AMainCharacterBase::SetEquippedWeapon(AWeapon* InWeapon)
+{
+	if (EquippedWeapon)
+		EquippedWeapon->Destroy();
+
+	EquippedWeapon = InWeapon; 
+}
+
+void AMainCharacterBase::Attack()
+{
+	bAttacking = true;
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && CombatMontage)
+	{
+		AnimInstance->Montage_Play(CombatMontage, 1.35f);
+		AnimInstance->Montage_JumpToSection(FName("Attack_1"), CombatMontage);
+	}
 }
