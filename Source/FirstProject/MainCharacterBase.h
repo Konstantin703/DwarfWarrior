@@ -6,6 +6,7 @@
 
 class USpringArmComponent;
 class UCameraComponent;
+class AWeapon;
 
 UENUM(BlueprintType)
 enum class EMovementStatus : uint8
@@ -33,6 +34,9 @@ class FIRSTPROJECT_API AMainCharacterBase : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AMainCharacterBase();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Items")
+	AWeapon* EquippedWeapon;
 
 	// Camera boom positioning camera behind the character
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -131,4 +135,6 @@ public:
 	void SetMovementStatus(EMovementStatus Status);
 
 	FORCEINLINE void SetStaminaStatus(EStaminaStatus Status) { StaminaStatus = Status; }
+
+	FORCEINLINE void SetEquippedWeapon(AWeapon* InWeapon) { EquippedWeapon = InWeapon; }
 };

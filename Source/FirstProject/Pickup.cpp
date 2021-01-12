@@ -19,6 +19,7 @@ void APickup::OnOverlapBegin(
 		if (MainCharacter)
 		{
 			MainCharacter->IncrementCoins(CoinAmount);
+			Destroy();
 		}
 	}
 }
