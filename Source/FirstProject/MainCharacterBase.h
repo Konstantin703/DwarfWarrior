@@ -157,4 +157,7 @@ public:
 	FORCEINLINE void SetActiveOverlappingItem(AItem* InItem) { ActiveOverlappingItem = InItem; }
 
 	void Attack();
+
+	UFUNCTION(BlueprintCallable)
+	void AttackEnd();
 };

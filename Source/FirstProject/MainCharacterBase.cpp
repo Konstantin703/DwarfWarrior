@@ -178,7 +178,7 @@ void AMainCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 void AMainCharacterBase::MoveForward(float InValue)
 {
-	if (Controller && InValue != 0.f)
+	if (Controller && (InValue != 0.f) && !bAttacking)
 	{
 		// Find forward
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -191,7 +191,7 @@ void AMainCharacterBase::MoveForward(float InValue)
 
 void AMainCharacterBase::MoveRight(float InValue)
 {
-	if (Controller && InValue != 0.f)
+	if (Controller && (InValue != 0.f) && !bAttacking)
 	{
 		// Find right
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -293,12 +293,34 @@ void AMainCharacterBase::SetEquippedWeapon(AWeapon* InWeapon)
 
 void AMainCharacterBase::Attack()
 {
-	bAttacking = true;
-
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (AnimInstance && CombatMontage)
+	if (!bAttacking)
 	{
-		AnimInstance->Montage_Play(CombatMontage, 1.35f);
-		AnimInstance->Montage_JumpToSection(FName("Attack_1"), CombatMontage);
+		bAttacking = true;
+
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if (AnimInstance && CombatMontage)
+		{
+			int32 Selection = FMath::RandRange(0, 1);
+			switch (Selection)
+			{
+			case 0:
+				AnimInstance->Montage_Play(CombatMontage, 2.2f);
+				AnimInstance->Montage_JumpToSection(FName("Attack_1"), CombatMontage);
+				break;
+			case 1:
+				AnimInstance->Montage_Play(CombatMontage, 1.8f);
+				AnimInstance->Montage_JumpToSection(FName("Attack_2"), CombatMontage);
+				break;
+			default:
+				;
+			}			
+		}
 	}
+}
+
+void AMainCharacterBase::AttackEnd()
+{
+	bAttacking = false;
+	if (bActionEnabled)
+		Attack();
 }
