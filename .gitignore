@@ -75,6 +75,7 @@ DerivedDataCache/*
 
 # Heavy and unnesessary content files
 Content/Assets/*
+Content/Blueprints/OLD/*
 Content/InfinityBladeAdversaries/*
 Content/InfinityBladeEffects/*
 Content/InfinityBladeWeapons/*

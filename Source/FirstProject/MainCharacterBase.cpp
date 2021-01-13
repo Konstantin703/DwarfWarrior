@@ -3,7 +3,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Weapon.h"
+#include "Items/Weapon.h"
 #include "Animation/AnimInstance.h"
 
 // Sets default values
