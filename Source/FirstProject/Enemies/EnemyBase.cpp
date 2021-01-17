@@ -2,6 +2,7 @@
 #include "Components/SphereComponent.h"
 #include "AIController.h"
 #include "FirstProject/MainCharacterBase.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 // Sets default values
 AEnemyBase::AEnemyBase()
@@ -16,6 +17,8 @@ AEnemyBase::AEnemyBase()
 	CombatSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CombatSphere"));
 	CombatSphere->SetupAttachment(GetRootComponent());
 	CombatSphere->InitSphereRadius(75.f);
+
+	bOverlappingCombatSphere = false;
 }
 
 // Called when the game starts or when spawned
@@ -62,7 +65,16 @@ void AEnemyBase::AgroOnOverlapBegin(
 
 void AEnemyBase::AgroOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-
+	if (OtherActor)
+	{
+		AMainCharacterBase* MainCharacter = Cast<AMainCharacterBase>(OtherActor);
+		if (MainCharacter)
+		{
+			SetState(EEnemyState::EES_Idle);
+			if (AIController)
+				AIController->StopMovement();
+		}			
+	}
 }
 
 void AEnemyBase::CombatOnOverlapBegin(
@@ -70,12 +82,34 @@ void AEnemyBase::CombatOnOverlapBegin(
 	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult
 )
 {
-
+	if (OtherActor)
+	{
+		AMainCharacterBase* MainCharacter = Cast<AMainCharacterBase>(OtherActor);
+		if (MainCharacter)
+		{
+			CombatTarget = MainCharacter;
+			bOverlappingCombatSphere = true;
+			SetState(EEnemyState::EES_Attacking);
+		}			
+	}
 }
 
 void AEnemyBase::CombatOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+	if (OtherActor)
+	{
+		AMainCharacterBase* MainCharacter = Cast<AMainCharacterBase>(OtherActor);
+		if (MainCharacter)
+		{
+			bOverlappingCombatSphere = true;
 
+			if (State != EEnemyState::EES_Attacking)
+			{
+				MoveToTarget(MainCharacter);
+				CombatTarget = nullptr;
+			}				
+		}			
+	}
 }
 
 void AEnemyBase::MoveToTarget(AMainCharacterBase* Target)
@@ -86,10 +120,19 @@ void AEnemyBase::MoveToTarget(AMainCharacterBase* Target)
 	{
 		FAIMoveRequest MoveRequest;
 		MoveRequest.SetGoalActor(Target);
-		MoveRequest.SetAcceptanceRadius(5.f);
+		MoveRequest.SetAcceptanceRadius(20.f);
 
 		FNavPathSharedPtr NavPath;
 
 		AIController->MoveTo(MoveRequest, &NavPath);
+
+		/** Debug path
+		TArray<FNavPathPoint> PathPoints = NavPath->GetPathPoints();
+		for (FNavPathPoint Point : PathPoints)
+		{
+			FVector Location = Point.Location;
+			UKismetSystemLibrary::DrawDebugSphere(this, Location, 25.f, 8, FLinearColor::Green, 10.f, 0.5f);
+		}
+		*/
 	}
 }
