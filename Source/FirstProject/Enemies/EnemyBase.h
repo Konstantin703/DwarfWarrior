@@ -7,6 +7,7 @@
 class USphereComponent;
 class AAIController;
 class AMainCharacterBase;
+class UParticleSystem;
 
 UENUM(BlueprintType)
 enum class EEnemyState : uint8
@@ -42,6 +43,16 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AI")
 	AMainCharacterBase* CombatTarget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	float Health;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	float MaxHealth;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	float Damage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	UParticleSystem* HitParticles;
 	
 protected:
 	// Called when the game starts or when spawned
@@ -76,5 +87,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void MoveToTarget(AMainCharacterBase* Target);
+
+	FORCEINLINE UParticleSystem* GetHitParticles() { return HitParticles; }
 
 };

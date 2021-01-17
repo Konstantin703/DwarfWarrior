@@ -1,5 +1,3 @@
-
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -9,6 +7,7 @@
 class USkeletalMeshComponent;
 class AMainCharacterBase;
 class USoundCue;
+class UBoxComponent;
 
 UENUM(BlueprintType)
 enum class EWeaponState : uint8
@@ -34,8 +33,20 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "SkeletalMesh")
 	USkeletalMeshComponent* SkeletalMesh;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	UBoxComponent* CombatCollision;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item | Sounds")
 	USoundCue* OnEquipSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item | Combat")
+	float Damage;
+
+protected:
+
+	virtual void BeginPlay() override;
+
+public:
 	
 	virtual void OnOverlapBegin(
 		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
@@ -49,4 +60,17 @@ public:
 
 	FORCEINLINE void SetWeaponState(EWeaponState InState) { WeaponState = InState; }
 	FORCEINLINE EWeaponState GetWeaponState() { return WeaponState; }	
+
+	UFUNCTION()
+	void CombatOnOverlapBegin(
+		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult
+	);
+	UFUNCTION()
+	void CombatOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	
+	UFUNCTION(BlueprintCallable)
+	void ActivateCollision();
+	UFUNCTION(BlueprintCallable)
+	void DeactivateCollision();
 };
