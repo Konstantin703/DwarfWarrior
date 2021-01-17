@@ -101,7 +101,7 @@ void AEnemyBase::CombatOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AA
 		AMainCharacterBase* MainCharacter = Cast<AMainCharacterBase>(OtherActor);
 		if (MainCharacter)
 		{
-			bOverlappingCombatSphere = true;
+			bOverlappingCombatSphere = false;
 
 			if (State != EEnemyState::EES_Attacking)
 			{
