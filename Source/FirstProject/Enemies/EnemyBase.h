@@ -9,6 +9,8 @@ class AAIController;
 class AMainCharacterBase;
 class UParticleSystem;
 class USoundCue;
+class UBoxComponent;
+class UAnimMontage;
 
 UENUM(BlueprintType)
 enum class EEnemyState : uint8
@@ -57,6 +59,16 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	USoundCue* HitSound;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	USoundCue* SwingSound;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat")
+	UBoxComponent* CombatCollision;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Combat")
+	UAnimMontage* CombatMontage;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	bool bAttacking;
 	
 protected:
 	// Called when the game starts or when spawned
@@ -81,19 +93,40 @@ public:
 	virtual void AgroOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	UFUNCTION()
-	virtual void CombatOnOverlapBegin(
+	virtual void CombatSphereOnOverlapBegin(
 		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult
 	);
 
 	UFUNCTION()
-	virtual void CombatOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	virtual void CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	UFUNCTION(BlueprintCallable)
 	void MoveToTarget(AMainCharacterBase* Target);
 
 	FORCEINLINE UParticleSystem* GetHitParticles() { return HitParticles; }
-
 	FORCEINLINE USoundCue* GetHitSound() { return HitSound; }
+	FORCEINLINE USoundCue* GetSwingSound() { return SwingSound; }
+
+	UFUNCTION()
+	void CombatOnOverlapBegin(
+		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult
+	);
+	UFUNCTION()
+	void CombatOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	UFUNCTION(BlueprintCallable)
+	void ActivateAttackCollision();
+	UFUNCTION(BlueprintCallable)
+	void DeactivateAttackCollision();
+
+	void Attack();
+
+	UFUNCTION(BlueprintCallable)
+	void AttackEnd();
+
+	UFUNCTION(BlueprintCallable)
+	void PlaySwingSound();
 
 };

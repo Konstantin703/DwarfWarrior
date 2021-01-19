@@ -9,6 +9,8 @@ class UCameraComponent;
 class AWeapon;
 class AItem;
 class UAnimaMontage;
+class UParticleSystem;
+class USoundCue;
 
 UENUM(BlueprintType)
 enum class EMovementStatus : uint8
@@ -96,6 +98,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anims")
 	UAnimMontage* CombatMontage;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	UParticleSystem* HitParticles;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	USoundCue* HitSound;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -133,10 +141,10 @@ public:
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 	UFUNCTION(BlueprintCallable, Category = "PlayerStats")
-	FORCEINLINE float GetHealthPercent() { return Health / MaxHealth; }
+	float GetHealthPercent() { return Health / MaxHealth; }
 
 	UFUNCTION(BlueprintCallable, Category = "PlayerStats")
-	FORCEINLINE float GetStaminaPercent() { return Stamina / MaxStamina; }
+	float GetStaminaPercent() { return Stamina / MaxStamina; }
 
 	UFUNCTION(BlueprintCallable, Category = "PlayerStats")
 	FText CoinsToText();
@@ -163,4 +171,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void PlaySwingSound();
+
+	FORCEINLINE UParticleSystem* GetHitParticles() { return HitParticles; }
+	FORCEINLINE USoundCue* GetHitSound() { return HitSound; }
 };
