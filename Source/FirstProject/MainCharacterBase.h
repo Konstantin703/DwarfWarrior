@@ -160,4 +160,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void AttackEnd();
+
+	UFUNCTION(BlueprintCallable)
+	void PlaySwingSound();
 };

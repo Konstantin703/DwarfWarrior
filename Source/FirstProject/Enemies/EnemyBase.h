@@ -8,6 +8,7 @@ class USphereComponent;
 class AAIController;
 class AMainCharacterBase;
 class UParticleSystem;
+class USoundCue;
 
 UENUM(BlueprintType)
 enum class EEnemyState : uint8
@@ -53,6 +54,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	UParticleSystem* HitParticles;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	USoundCue* HitSound;
 	
 protected:
 	// Called when the game starts or when spawned
@@ -89,5 +93,7 @@ public:
 	void MoveToTarget(AMainCharacterBase* Target);
 
 	FORCEINLINE UParticleSystem* GetHitParticles() { return HitParticles; }
+
+	FORCEINLINE USoundCue* GetHitSound() { return HitSound; }
 
 };

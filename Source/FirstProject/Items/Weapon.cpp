@@ -110,8 +110,12 @@ void AWeapon::CombatOnOverlapBegin(
 				{
 					FVector SocketLocation = WeaponSocket->GetSocketLocation(SkeletalMesh);
 					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Enemy->GetHitParticles(), SocketLocation, FRotator(0.f), false);
-				}
-				
+				}				
+			}
+
+			if (Enemy->GetHitSound())
+			{
+				UGameplayStatics::PlaySound2D(this, Enemy->GetHitSound());
 			}
 		}
 	}

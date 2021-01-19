@@ -5,6 +5,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Items/Weapon.h"
 #include "Animation/AnimInstance.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 // Sets default values
 AMainCharacterBase::AMainCharacterBase()
@@ -323,4 +325,10 @@ void AMainCharacterBase::AttackEnd()
 	bAttacking = false;
 	if (bActionEnabled)
 		Attack();
+}
+
+void AMainCharacterBase::PlaySwingSound()
+{
+	if (EquippedWeapon->GetSwingSound())
+		UGameplayStatics::PlaySound2D(this, EquippedWeapon->GetSwingSound());
 }

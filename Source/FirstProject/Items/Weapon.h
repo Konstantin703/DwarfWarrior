@@ -33,14 +33,16 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "SkeletalMesh")
 	USkeletalMeshComponent* SkeletalMesh;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item | Combat")
 	UBoxComponent* CombatCollision;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item | Sounds")
-	USoundCue* OnEquipSound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item | Combat")
 	float Damage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item | Sounds")
+	USoundCue* OnEquipSound;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item | Sounds")
+	USoundCue* SwingSound;
 
 protected:
 
@@ -73,4 +75,6 @@ public:
 	void ActivateCollision();
 	UFUNCTION(BlueprintCallable)
 	void DeactivateCollision();
+
+	FORCEINLINE USoundCue* GetSwingSound() { return SwingSound; }
 };
