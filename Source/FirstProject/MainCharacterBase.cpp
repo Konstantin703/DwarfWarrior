@@ -7,6 +7,8 @@
 #include "Animation/AnimInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Enemies/EnemyBase.h"
 
 // Sets default values
 AMainCharacterBase::AMainCharacterBase()
@@ -67,6 +69,9 @@ AMainCharacterBase::AMainCharacterBase()
 	MinSprintStamina = 50.f;
 
 	bActionEnabled = false;
+
+	InterpSpeed = 15.f;
+	bInterpToEnemy = false;
 }
 
 // Called when the game starts or when spawned
@@ -149,6 +154,14 @@ void AMainCharacterBase::Tick(float DeltaTime)
 		break;
 	default:
 		;
+	}
+
+	if (bInterpToEnemy && CombatTarget)
+	{
+		FRotator LookAtYaw = GetLookAtRotationYaw(CombatTarget->GetActorLocation());
+		FRotator InterpRotation = FMath::RInterpTo(GetActorRotation(), LookAtYaw, DeltaTime, InterpSpeed);
+
+		SetActorRotation(InterpRotation);
 	}
 }
 
@@ -298,7 +311,7 @@ void AMainCharacterBase::Attack()
 	if (!bAttacking)
 	{
 		bAttacking = true;
-
+		SetInterpToEnemy(true);
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 		if (AnimInstance && CombatMontage)
 		{
@@ -323,6 +336,7 @@ void AMainCharacterBase::Attack()
 void AMainCharacterBase::AttackEnd()
 {
 	bAttacking = false;
+	SetInterpToEnemy(false);
 	if (bActionEnabled)
 		Attack();
 }
@@ -331,4 +345,16 @@ void AMainCharacterBase::PlaySwingSound()
 {
 	if (EquippedWeapon->GetSwingSound())
 		UGameplayStatics::PlaySound2D(this, EquippedWeapon->GetSwingSound());
+}
+
+void AMainCharacterBase::SetInterpToEnemy(bool InInterp)
+{
+	bInterpToEnemy = InInterp;
+}
+
+FRotator AMainCharacterBase::GetLookAtRotationYaw(FVector Target)
+{
+	FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Target);
+	FRotator LookAtRotationYaw(0.f, LookAtRotation.Yaw, 0.f);
+	return LookAtRotationYaw;
 }

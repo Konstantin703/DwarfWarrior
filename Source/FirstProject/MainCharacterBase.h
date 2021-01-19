@@ -11,6 +11,7 @@ class AItem;
 class UAnimaMontage;
 class UParticleSystem;
 class USoundCue;
+class AEnemyBase;
 
 UENUM(BlueprintType)
 enum class EMovementStatus : uint8
@@ -90,6 +91,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float MinSprintStamina;
 
+	float InterpSpeed;
+	bool bInterpToEnemy;
+
 	bool bActionEnabled;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anims")
@@ -103,6 +107,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	USoundCue* HitSound;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	AEnemyBase* CombatTarget;
 
 protected:
 	// Called when the game starts or when spawned
@@ -174,4 +181,10 @@ public:
 
 	FORCEINLINE UParticleSystem* GetHitParticles() { return HitParticles; }
 	FORCEINLINE USoundCue* GetHitSound() { return HitSound; }
+
+	void SetInterpToEnemy(bool InInterp);
+
+	FORCEINLINE void SetCombatTarget(AEnemyBase* Target) { CombatTarget = Target; }
+
+	FRotator GetLookAtRotationYaw(FVector Target);
 };
