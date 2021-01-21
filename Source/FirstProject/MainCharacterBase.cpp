@@ -181,7 +181,7 @@ void AMainCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	check(PlayerInputComponent);
 
-	PlayerInputComponent->BindAction("Jump", EInputEvent::IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", EInputEvent::IE_Pressed, this, &AMainCharacterBase::Jump);
 	PlayerInputComponent->BindAction("Jump", EInputEvent::IE_Released, this, &ACharacter::StopJumping);
 
 	PlayerInputComponent->BindAction("Sprint", EInputEvent::IE_Pressed, this, &AMainCharacterBase::SprintEnabled);
@@ -250,6 +250,7 @@ void AMainCharacterBase::LookUpAtRate(float InRate)
 void AMainCharacterBase::ActionEnabled()
 {
 	bActionEnabled = true;
+
 	if (ActiveOverlappingItem)
 	{
 		AWeapon* Weapon = Cast<AWeapon>(ActiveOverlappingItem);
@@ -302,13 +303,23 @@ void AMainCharacterBase::IncrementCoins(int32 Amount)
 
 void AMainCharacterBase::Die()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Main Character is dead!!"));
+	if (!IsAlive()) return;
+
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && CombatMontage)
 	{
 		AnimInstance->Montage_Play(CombatMontage, 1.f);
 		AnimInstance->Montage_JumpToSection(FName("Death"));
 	}
+	SetMovementStatus(EMovementStatus::EMS_Dead);
+	DestroyPlayerInputComponent();
+	//InputComponent->ClearBindingValues();
+}
+
+void AMainCharacterBase::DeathEnd()
+{
+	GetMesh()->bPauseAnims = true;
+	GetMesh()->bNoSkeletonUpdate = true;
 }
 
 void AMainCharacterBase::SetMovementStatus(EMovementStatus Status)
@@ -330,7 +341,7 @@ void AMainCharacterBase::SetEquippedWeapon(AWeapon* InWeapon)
 
 void AMainCharacterBase::Attack()
 {
-	if (!bAttacking)
+	if (!bAttacking) 
 	{
 		bAttacking = true;
 		SetInterpToEnemy(true);
@@ -379,4 +390,9 @@ FRotator AMainCharacterBase::GetLookAtRotationYaw(FVector Target)
 	FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Target);
 	FRotator LookAtRotationYaw(0.f, LookAtRotation.Yaw, 0.f);
 	return LookAtRotationYaw;
+}
+
+bool AMainCharacterBase::IsAlive()
+{
+	return MovementStatus != EMovementStatus::EMS_Dead;
 }

@@ -27,8 +27,14 @@ public:
 
 	FVector EnemyLocation;
 
+	float WidgetLength;
+	float WidgetWidth;
+
+	float WidgetShiftX;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Widgets")
-	float WidgetShift = 100.f;
+	float WidgetShiftY;	
+
+	FVector2D SizeInViewPort;
 
 	void DisplayEnemyHealthBar();
 	void RemoveEnemyHealthBar();

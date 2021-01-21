@@ -18,9 +18,10 @@ class AMainPlayerController;
 UENUM(BlueprintType)
 enum class EMovementStatus : uint8
 {
-	EMS_Normal UMETA(DisplayName = "Normal"),
-	EMS_Sprinting UMETA(DisplayName = "Sprinting"),
-	EMS_MAX UMETA(DisplayName = "DefaultMAX")
+	EMS_Normal		UMETA(DisplayName = "Normal"),
+	EMS_Sprinting	UMETA(DisplayName = "Sprinting"),
+	EMS_Dead		UMETA(DisplayName = "Dead"),
+	EMS_MAX			UMETA(DisplayName = "DefaultMAX")
 };
 
 UENUM(BlueprintType)
@@ -175,6 +176,9 @@ public:
 
 	void Die();
 
+	UFUNCTION(BlueprintCallable)
+	void DeathEnd();
+
 	/** Set movemet status and running speed */
 	void SetMovementStatus(EMovementStatus Status);
 
@@ -203,4 +207,6 @@ public:
 	FORCEINLINE AEnemyBase* GetCombatTarget() { return CombatTarget; }
 
 	FRotator GetLookAtRotationYaw(FVector Target);
+
+	bool IsAlive();
 };

@@ -22,6 +22,14 @@ void AMainPlayerController::BeginPlay()
 		FVector2D Alignment(0.f, 0.f);
 		EnemyHealthBar->SetAlignmentInViewport(Alignment);
 	}
+
+	WidgetLength = 150.f;
+	WidgetWidth = 10.f;
+
+	WidgetShiftX = WidgetLength / 2;
+	WidgetShiftY = 100.f;	
+
+	SizeInViewPort = FVector2D(WidgetLength, WidgetWidth);
 }
 
 void AMainPlayerController::Tick(float DeltaTime)
@@ -32,8 +40,8 @@ void AMainPlayerController::Tick(float DeltaTime)
 	{
 		FVector2D ViewportPosition;
 		ProjectWorldLocationToScreen(EnemyLocation, ViewportPosition);
-		ViewportPosition.Y -= WidgetShift;
-		FVector2D SizeInViewPort(200.f, 25.f);
+		ViewportPosition.X -= WidgetShiftX;
+		ViewportPosition.Y -= WidgetShiftY;
 
 		EnemyHealthBar->SetPositionInViewport(ViewportPosition);
 		EnemyHealthBar->SetDesiredSizeInViewport(SizeInViewPort);
