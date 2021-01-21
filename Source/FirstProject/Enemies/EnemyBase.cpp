@@ -9,6 +9,7 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "Sound/SoundCue.h"
 #include "Animation/AnimInstance.h"
+#include "TimerManager.h"
 
 // Sets default values
 AEnemyBase::AEnemyBase()
@@ -32,6 +33,9 @@ AEnemyBase::AEnemyBase()
 	Health = 75.f;
 	MaxHealth = 100.f;
 	Damage = 10.f;
+
+	AttackMinTime = 0.5f;
+	AttackMaxTime = 3.5f;
 
 	bAttacking = false;
 }
@@ -131,7 +135,9 @@ void AEnemyBase::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedCompone
 			{
 				MoveToTarget(MainCharacter);
 				CombatTarget = nullptr;
-			}				
+			}
+
+			GetWorldTimerManager().ClearTimer(AttackTimer);
 		}			
 	}
 }
@@ -227,7 +233,11 @@ void AEnemyBase::AttackEnd()
 {
 	bAttacking = false;
 	if (bOverlappingCombatSphere)
-		Attack();
+	{
+		float AttackTime = FMath::RandRange(AttackMinTime, AttackMaxTime);
+		GetWorldTimerManager().SetTimer(AttackTimer, this, &AEnemyBase::Attack, AttackTime);
+	}
+		
 }
 
 void AEnemyBase::PlaySwingSound()
