@@ -12,6 +12,8 @@ class UAnimaMontage;
 class UParticleSystem;
 class USoundCue;
 class AEnemyBase;
+class AController;
+class AMainPlayerController;
 
 UENUM(BlueprintType)
 enum class EMovementStatus : uint8
@@ -24,13 +26,14 @@ enum class EMovementStatus : uint8
 UENUM(BlueprintType)
 enum class EStaminaStatus : uint8
 {
-	ESS_Normal UMETA(DisplayName = "Normal"),
-	ESS_BelowMinimum UMETA(DisplayName = "BelowMinimum"),
-	ESS_Exhausted UMETA(DisplayName = "Exhausted"),
-	ESS_ExhaustedRecovering UMETA(DisplayName = "ExhaustedRecovering"),
-	ESS_MAX UMETA(DisplayName = "DefaultMax")
+	ESS_Normal					UMETA(DisplayName = "Normal"),
+	ESS_BelowMinimum			UMETA(DisplayName = "BelowMinimum"),
+	ESS_Exhausted				UMETA(DisplayName = "Exhausted"),
+	ESS_ExhaustedRecovering		UMETA(DisplayName = "ExhaustedRecovering"),
+	ESS_MAX						UMETA(DisplayName = "DefaultMax")
 };
 
+// TODO: some combat releated functions are similar to EnemyBase.h - refactor, make parent class
 UCLASS()
 class FIRSTPROJECT_API AMainCharacterBase : public ACharacter
 {
@@ -39,6 +42,9 @@ class FIRSTPROJECT_API AMainCharacterBase : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AMainCharacterBase();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Controller")
+	AMainPlayerController* PlayerController;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Items")
 	AWeapon* EquippedWeapon;
@@ -111,6 +117,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	AEnemyBase* CombatTarget;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat")
+	FVector CombatTargetLocation;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -121,6 +130,8 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	FORCEINLINE AMainPlayerController* GetPlayerController() { return PlayerController; }
 
 	/** Called for forward/backward input */
 	void MoveForward(float InValue);
@@ -157,6 +168,9 @@ public:
 	FText CoinsToText();
 
 	void DecrementHealth(float Amount);
+
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser) override;
+
 	void IncrementCoins(int32 Amount);
 
 	void Die();
@@ -185,6 +199,8 @@ public:
 	void SetInterpToEnemy(bool InInterp);
 
 	FORCEINLINE void SetCombatTarget(AEnemyBase* Target) { CombatTarget = Target; }
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE AEnemyBase* GetCombatTarget() { return CombatTarget; }
 
 	FRotator GetLookAtRotationYaw(FVector Target);
 };

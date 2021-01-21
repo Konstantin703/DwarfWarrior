@@ -7,6 +7,7 @@
 #include "Components/BoxComponent.h"
 #include "FirstProject/Enemies/EnemyBase.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "Components/SphereComponent.h"
 
 AWeapon::AWeapon()
 {
@@ -71,6 +72,8 @@ void AWeapon::Equip(AMainCharacterBase* Character)
 {
 	if (Character)
 	{
+		SetWeaponInstigator(Character->GetController());
+
 		SkeletalMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 		SkeletalMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 		SkeletalMesh->SetSimulatePhysics(false);
@@ -81,8 +84,10 @@ void AWeapon::Equip(AMainCharacterBase* Character)
 		{			
 			bRotate = false;
 			RightHandSocket->AttachActor(this, Character->GetMesh());
+			GetCollisionVolume()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			Character->SetEquippedWeapon(this);
 			Character->SetActiveOverlappingItem(nullptr);
+			
 		}
 
 		if (OnEquipSound)
@@ -90,6 +95,7 @@ void AWeapon::Equip(AMainCharacterBase* Character)
 
 		if (!bWeaponParticle)
 			IdleParticlesComponent->Deactivate();
+
 	}
 }
 
@@ -114,9 +120,10 @@ void AWeapon::CombatOnOverlapBegin(
 			}
 
 			if (Enemy->GetHitSound())
-			{
 				UGameplayStatics::PlaySound2D(this, Enemy->GetHitSound());
-			}
+
+			if (DamageTypeClass)
+				UGameplayStatics::ApplyDamage(Enemy, Damage, WeaponInstigator, this, DamageTypeClass);
 		}
 	}
 }

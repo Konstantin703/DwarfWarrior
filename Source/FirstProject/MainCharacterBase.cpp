@@ -9,6 +9,7 @@
 #include "Sound/SoundCue.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Enemies/EnemyBase.h"
+#include "MainPlayerController.h"
 
 // Sets default values
 AMainCharacterBase::AMainCharacterBase()
@@ -78,7 +79,8 @@ AMainCharacterBase::AMainCharacterBase()
 void AMainCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	PlayerController = Cast<AMainPlayerController>(GetController());	
 }
 
 // Called every frame
@@ -163,6 +165,14 @@ void AMainCharacterBase::Tick(float DeltaTime)
 
 		SetActorRotation(InterpRotation);
 	}
+
+	if (CombatTarget)
+	{
+		CombatTargetLocation = CombatTarget->GetActorLocation();
+		if (PlayerController)
+			PlayerController->SetEnemyLocation(CombatTargetLocation);
+	}
+		
 }
 
 // Called to bind functionality to input
@@ -279,6 +289,12 @@ void AMainCharacterBase::DecrementHealth(float Amount)
 	}		
 }
 
+float AMainCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
+{
+	DecrementHealth(DamageAmount);
+	return DamageAmount;
+}
+
 void AMainCharacterBase::IncrementCoins(int32 Amount)
 {
 	Coins += Amount;
@@ -287,6 +303,12 @@ void AMainCharacterBase::IncrementCoins(int32 Amount)
 void AMainCharacterBase::Die()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Main Character is dead!!"));
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && CombatMontage)
+	{
+		AnimInstance->Montage_Play(CombatMontage, 1.f);
+		AnimInstance->Montage_JumpToSection(FName("Death"));
+	}
 }
 
 void AMainCharacterBase::SetMovementStatus(EMovementStatus Status)

@@ -8,6 +8,7 @@ class USkeletalMeshComponent;
 class AMainCharacterBase;
 class USoundCue;
 class UBoxComponent;
+class AController;
 
 UENUM(BlueprintType)
 enum class EWeaponState : uint8
@@ -38,6 +39,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item | Combat")
 	float Damage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item | Combat")
+	TSubclassOf<UDamageType> DamageTypeClass;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item | Combat")
+	AController* WeaponInstigator;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item | Sounds")
 	USoundCue* OnEquipSound;
@@ -77,4 +84,6 @@ public:
 	void DeactivateCollision();
 
 	FORCEINLINE USoundCue* GetSwingSound() { return SwingSound; }
+
+	FORCEINLINE void SetWeaponInstigator(AController* InInstigator) { WeaponInstigator = InInstigator; }	
 };

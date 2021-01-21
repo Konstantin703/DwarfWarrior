@@ -15,12 +15,14 @@ class UAnimMontage;
 UENUM(BlueprintType)
 enum class EEnemyState : uint8
 {
-	EES_Idle UMETA(DisplayName = "Idle"),
-	EES_MoveToTarget UMETA(DisplayName = "MoveToTarget"),
-	EES_Attacking UMETA(DisplayName = "Attacking"),
-	EES_MAX UMETA(DisplayName = "DefaultMAX")
+	EES_Idle			UMETA(DisplayName = "Idle"),
+	EES_MoveToTarget	UMETA(DisplayName = "MoveToTarget"),
+	EES_Attacking		UMETA(DisplayName = "Attacking"),
+	EES_Dead			UMETA(DisplayName = "Dead"),
+	EES_MAX				UMETA(DisplayName = "DefaultMAX")
 };
 
+// TODO: some combat releated functions are similar to MainCharacterBase.h - refactor, make parent class
 UCLASS()
 class FIRSTPROJECT_API AEnemyBase : public ACharacter
 {
@@ -74,8 +76,15 @@ public:
 	float AttackMinTime;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	float AttackMaxTime;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	TSubclassOf<UDamageType> DamageTypeClass;
+
 	FTimerHandle AttackTimer;
+	FTimerHandle DeathTimer;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	float DeathDelay;
 
 protected:
 	// Called when the game starts or when spawned
@@ -89,6 +98,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	FORCEINLINE void SetState(EEnemyState InState) { State = InState; }
+	FORCEINLINE EEnemyState GetState() { return State; }
 
 	UFUNCTION()
 	virtual void AgroOnOverlapBegin(
@@ -135,5 +145,19 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void PlaySwingSound();
+
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser) override;
+
+	void Die();
+
+	UFUNCTION(BlueprintCallable)
+	void DeathEnd();
+	UFUNCTION(BlueprintCallable)
+	bool IsAlive();
+
+	void Disappear();
+
+	UFUNCTION(BlueprintCallable, Category = "EnemyStats")
+	float GetHealthPercent() { return Health / MaxHealth; }
 
 };

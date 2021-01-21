@@ -43,6 +43,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	FORCEINLINE USphereComponent* GetCollisionVolume() { return CollisionVolume; }
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -55,6 +57,4 @@ public:
 
 	UFUNCTION()
 	virtual void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
-
 };
