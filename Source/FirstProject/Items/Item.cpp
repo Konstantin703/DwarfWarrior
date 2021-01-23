@@ -3,6 +3,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
+#include "FirstProject/MainCharacterBase.h"
 
 // Sets default values
 AItem::AItem()
@@ -51,16 +52,21 @@ void AItem::OnOverlapBegin(
 	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult
 )
 {
-	UE_LOG(LogTemp, Warning, TEXT("On Overlap Begin()"));
+	if (OtherActor)
+	{
+		AMainCharacterBase* MainCharacter = Cast<AMainCharacterBase>(OtherActor);
+		if (MainCharacter)
+		{
+			if (OverlapParticles)
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), OverlapParticles, GetActorLocation(), FRotator(0.f), true);
 
-	if (OverlapParticles)
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), OverlapParticles, GetActorLocation(), FRotator(0.f), true);
-	
-	if (OverlapSound)
-		UGameplayStatics::PlaySound2D(this, OverlapSound);
+			if (OverlapSound)
+				UGameplayStatics::PlaySound2D(this, OverlapSound);
+		}
+	}	
 }
 
 void AItem::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	UE_LOG(LogTemp, Warning, TEXT("On Overlap End()"));
+	
 }

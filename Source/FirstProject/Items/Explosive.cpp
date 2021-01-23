@@ -17,16 +17,13 @@ void AExplosive::OnOverlapBegin(
 	{
 		AMainCharacterBase* MainCharacter = Cast<AMainCharacterBase>(OtherActor);
 		if (MainCharacter)
-		{
 			MainCharacter->DecrementHealth(Damage);
-			Destroy();
-		}
+		
+		Destroy();
 	}
 }
 
 void AExplosive::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	Super::OnOverlapEnd(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex);
-
-	UE_LOG(LogTemp, Warning, TEXT("Explosive::On Overlap End()"));
 }

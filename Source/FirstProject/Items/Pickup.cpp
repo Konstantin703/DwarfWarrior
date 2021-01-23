@@ -17,16 +17,13 @@ void APickup::OnOverlapBegin(
 	{
 		AMainCharacterBase* MainCharacter = Cast<AMainCharacterBase>(OtherActor);
 		if (MainCharacter)
-		{
 			MainCharacter->IncrementCoins(CoinAmount);
-			Destroy();
-		}
+
+		Destroy();
 	}
 }
 
 void APickup::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	Super::OnOverlapEnd(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex);
-
-	UE_LOG(LogTemp, Warning, TEXT("APickup::On Overlap End()"));
 }

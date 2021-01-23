@@ -10,6 +10,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Enemies/EnemyBase.h"
 #include "MainPlayerController.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 AMainCharacterBase::AMainCharacterBase()
@@ -73,6 +74,9 @@ AMainCharacterBase::AMainCharacterBase()
 
 	InterpSpeed = 15.f;
 	bInterpToEnemy = false;
+
+	bMovingForward = false;
+	bMovingRight = false;
 }
 
 // Called when the game starts or when spawned
@@ -95,26 +99,34 @@ void AMainCharacterBase::Tick(float DeltaTime)
 	case EStaminaStatus::ESS_Normal:
 		if (bSprintEnabled)
 		{
-			if ( (Stamina - DeltaStamina) <= MinSprintStamina )
+			if ((Stamina - DeltaStamina) <= MinSprintStamina)
 				SetStaminaStatus(EStaminaStatus::ESS_BelowMinimum);
 			
-			Stamina -= DeltaStamina;
-			SetMovementStatus(EMovementStatus::EMS_Sprinting);				
+			if (bMovingForward || bMovingRight)
+				SetMovementStatus(EMovementStatus::EMS_Sprinting);
+			else
+				SetMovementStatus(EMovementStatus::EMS_Normal);
+
+			if (IsSprinting())
+				Stamina -= DeltaStamina;
 		}
 		else
 		{
-			if ( (Stamina + DeltaStamina) >= MaxStamina )
-				Stamina = MaxStamina;
-			else
-				Stamina += DeltaStamina;
-			
 			SetMovementStatus(EMovementStatus::EMS_Normal);
+
+			if (!IsSprinting())
+			{
+				if ((Stamina + DeltaStamina) >= MaxStamina)
+					Stamina = MaxStamina;
+				else
+					Stamina += DeltaStamina;
+			}			
 		}
 		break;
 	case EStaminaStatus::ESS_BelowMinimum:
 		if (bSprintEnabled)
 		{
-			if ( (Stamina - DeltaStamina) <= 0.f )
+			if ((Stamina - DeltaStamina) <= 0.f)
 			{
 				SetStaminaStatus(EStaminaStatus::ESS_Exhausted);
 				Stamina = 0.f;
@@ -122,41 +134,54 @@ void AMainCharacterBase::Tick(float DeltaTime)
 			}
 			else
 			{
-				Stamina -= DeltaStamina;
-				SetMovementStatus(EMovementStatus::EMS_Sprinting);
-			}				
+				if (bMovingForward || bMovingRight)
+					SetMovementStatus(EMovementStatus::EMS_Sprinting);
+				else
+					SetMovementStatus(EMovementStatus::EMS_Normal);
+
+				if (IsSprinting())
+					Stamina -= DeltaStamina;
+			}
 		}
 		else
 		{
-			if ( (Stamina + DeltaStamina) >= MinSprintStamina )
+			if ((Stamina + DeltaStamina) >= MinSprintStamina)
 				SetStaminaStatus(EStaminaStatus::ESS_Normal);
 
-			Stamina += DeltaStamina;
-			SetMovementStatus(EMovementStatus::EMS_Normal);			
+			SetMovementStatus(EMovementStatus::EMS_Normal);
+
+			if (!IsSprinting())
+				Stamina += DeltaStamina;
 		}
 		break;
 	case EStaminaStatus::ESS_Exhausted:
 		if (bSprintEnabled)
 		{
 			Stamina = 0.f;
-		}			
+		}
 		else
 		{
 			SetStaminaStatus(EStaminaStatus::ESS_ExhaustedRecovering);
-			Stamina += DeltaStamina;
+
+			if (!IsSprinting())
+				Stamina += DeltaStamina;
 		}
 		SetMovementStatus(EMovementStatus::EMS_Normal);
 		break;
 	case EStaminaStatus::ESS_ExhaustedRecovering:
-		if ( (Stamina + DeltaStamina) >= MinSprintStamina )
+		if ((Stamina + DeltaStamina) >= MinSprintStamina)
 			SetStaminaStatus(EStaminaStatus::ESS_Normal);
+		
+		SetMovementStatus(EMovementStatus::EMS_Normal);
 
-		Stamina += DeltaStamina;
-		SetMovementStatus(EMovementStatus::EMS_Normal);		
+		if (!IsSprinting())
+			Stamina += DeltaStamina;
+		
 		break;
 	default:
 		;
 	}
+		
 
 	if (bInterpToEnemy && CombatTarget)
 	{
@@ -203,7 +228,9 @@ void AMainCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 void AMainCharacterBase::MoveForward(float InValue)
 {
-	if (Controller && (InValue != 0.f) && !bAttacking)
+	bMovingForward = false;
+
+	if (Controller && (InValue != 0.f) && !bAttacking )
 	{
 		// Find forward
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -211,11 +238,15 @@ void AMainCharacterBase::MoveForward(float InValue)
 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		AddMovementInput(Direction, InValue);
+
+		bMovingForward = true;
 	}
 }
 
 void AMainCharacterBase::MoveRight(float InValue)
 {
+	bMovingRight = false;
+
 	if (Controller && (InValue != 0.f) && !bAttacking)
 	{
 		// Find right
@@ -224,6 +255,8 @@ void AMainCharacterBase::MoveRight(float InValue)
 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		AddMovementInput(Direction, InValue);
+
+		bMovingRight = true;
 	}
 }
 
@@ -293,6 +326,16 @@ void AMainCharacterBase::DecrementHealth(float Amount)
 float AMainCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
 {
 	DecrementHealth(DamageAmount);
+
+	if (!IsAlive() && DamageCauser)
+	{
+		AEnemyBase* Enemy = Cast<AEnemyBase>(DamageCauser);
+		if (Enemy && Enemy->GetCombatTarget())
+		{
+			Enemy->SetCombatTarget(nullptr);
+		}
+	}
+
 	return DamageAmount;
 }
 
@@ -395,4 +438,9 @@ FRotator AMainCharacterBase::GetLookAtRotationYaw(FVector Target)
 bool AMainCharacterBase::IsAlive()
 {
 	return MovementStatus != EMovementStatus::EMS_Dead;
+}
+
+bool AMainCharacterBase::IsSprinting()
+{
+	return MovementStatus == EMovementStatus::EMS_Sprinting;
 }

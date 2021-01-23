@@ -132,7 +132,7 @@ void AEnemyBase::CombatSphereOnOverlapBegin(
 			if (MainCharacter->GetPlayerController())
 				MainCharacter->GetPlayerController()->DisplayEnemyHealthBar();
 
-			CombatTarget = MainCharacter;
+			SetCombatTarget(MainCharacter);
 			bOverlappingCombatSphere = true;
 			Attack();
 		}			
@@ -163,7 +163,7 @@ void AEnemyBase::MoveToTarget(AMainCharacterBase* Target)
 {
 	SetState(EEnemyState::EES_MoveToTarget);
 
-	if (AIController)
+	if (AIController && Target->IsAlive())
 	{
 		FAIMoveRequest MoveRequest;
 		MoveRequest.SetGoalActor(Target);
@@ -231,7 +231,7 @@ void AEnemyBase::DeactivateAttackCollision()
 
 void AEnemyBase::Attack()
 {
-	if (IsAlive())
+	if (IsAlive() && GetCombatTarget())
 	{
 		if (AIController)
 		{

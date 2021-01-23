@@ -18,6 +18,7 @@ class AMainPlayerController;
 UENUM(BlueprintType)
 enum class EMovementStatus : uint8
 {
+	EMS_Idle		UMETA(DisplayName = "Idle"),
 	EMS_Normal		UMETA(DisplayName = "Normal"),
 	EMS_Sprinting	UMETA(DisplayName = "Sprinting"),
 	EMS_Dead		UMETA(DisplayName = "Dead"),
@@ -100,6 +101,9 @@ public:
 
 	float InterpSpeed;
 	bool bInterpToEnemy;
+
+	bool bMovingForward;
+	bool bMovingRight;
 
 	bool bActionEnabled;
 
@@ -209,4 +213,6 @@ public:
 	FRotator GetLookAtRotationYaw(FVector Target);
 
 	bool IsAlive();
+
+	bool IsSprinting();
 };

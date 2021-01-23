@@ -160,4 +160,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "EnemyStats")
 	float GetHealthPercent() { return Health / MaxHealth; }
 
+	FORCEINLINE AMainCharacterBase* GetCombatTarget() { return CombatTarget; }
+	FORCEINLINE void SetCombatTarget(AMainCharacterBase* InTarget) { CombatTarget = InTarget; }
+
 };
