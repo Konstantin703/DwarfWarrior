@@ -54,15 +54,11 @@ void AItem::OnOverlapBegin(
 {
 	if (OtherActor)
 	{
-		AMainCharacterBase* MainCharacter = Cast<AMainCharacterBase>(OtherActor);
-		if (MainCharacter)
-		{
-			if (OverlapParticles)
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), OverlapParticles, GetActorLocation(), FRotator(0.f), true);
+		if (OverlapParticles)
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), OverlapParticles, GetActorLocation(), FRotator(0.f), true);
 
-			if (OverlapSound)
-				UGameplayStatics::PlaySound2D(this, OverlapSound);
-		}
+		if (OverlapSound)
+			UGameplayStatics::PlaySound2D(this, OverlapSound);	
 	}	
 }
 

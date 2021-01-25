@@ -4,8 +4,10 @@
 #include "Item.h"
 #include "Explosive.generated.h"
 
+class UDamageType;
+
 /**
- *  Explosive object that cause damage to the Main Character
+ *  Explosive object that cause damage to the Main Character and Enemy
  */
 UCLASS()
 class FIRSTPROJECT_API AExplosive : public AItem
@@ -17,6 +19,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
 	float Damage;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Damage")
+	TSubclassOf<UDamageType> DamageTypeClass;
 
 	virtual void OnOverlapBegin(
 		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,

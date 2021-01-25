@@ -1,5 +1,7 @@
 #include "Explosive.h"
 #include "FirstProject/MainCharacterBase.h"
+#include "FirstProject/Enemies/EnemyBase.h"
+#include "Kismet/GameplayStatics.h"
 
 AExplosive::AExplosive()
 {
@@ -16,8 +18,10 @@ void AExplosive::OnOverlapBegin(
 	if (OtherActor)
 	{
 		AMainCharacterBase* MainCharacter = Cast<AMainCharacterBase>(OtherActor);
-		if (MainCharacter)
-			MainCharacter->DecrementHealth(Damage);
+		AEnemyBase* Enemy = Cast<AEnemyBase>(OtherActor);
+
+		if (MainCharacter || Enemy)
+			UGameplayStatics::ApplyDamage(OtherActor, Damage, nullptr, this, DamageTypeClass);
 		
 		Destroy();
 	}

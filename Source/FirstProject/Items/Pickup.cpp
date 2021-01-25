@@ -1,8 +1,12 @@
 #include "Pickup.h"
 #include "FirstProject/MainCharacterBase.h"
+#include "Components/SphereComponent.h"
 
 APickup::APickup()
 {
+	CollisionVolume->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	CollisionVolume->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+
 	CoinAmount = 5;
 }
 
@@ -18,7 +22,7 @@ void APickup::OnOverlapBegin(
 		AMainCharacterBase* MainCharacter = Cast<AMainCharacterBase>(OtherActor);
 		if (MainCharacter)
 			MainCharacter->IncrementCoins(CoinAmount);
-
+			
 		Destroy();
 	}
 }

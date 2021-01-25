@@ -13,23 +13,26 @@
 #include "Components/CapsuleComponent.h"
 #include "EnemyAnimInstance.h"
 #include "FirstProject/MainPlayerController.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 AEnemyBase::AEnemyBase()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	//PrimaryActorTick.bCanEverTick = true;
+	//GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Ignore);
 
-	AgroSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AgroSphere"));
+ 	AgroSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AgroSphere"));
 	AgroSphere->SetupAttachment(GetRootComponent());
 	AgroSphere->InitSphereRadius(600.f);
+	AgroSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Ignore);
 
 	CombatSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CombatSphere"));
 	CombatSphere->SetupAttachment(GetRootComponent());
 	CombatSphere->InitSphereRadius(75.f);
+	CombatSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Ignore);
 
 	CombatCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("CombatCollision"));
-	CombatCollision->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("EnemySocket"));
+	CombatCollision->SetupAttachment(GetMesh(), FName("EnemySocket"));
+	CombatCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Ignore);
 
 	bOverlappingCombatSphere = false;
 
@@ -134,7 +137,8 @@ void AEnemyBase::CombatSphereOnOverlapBegin(
 
 			SetCombatTarget(MainCharacter);
 			bOverlappingCombatSphere = true;
-			Attack();
+
+			SetAttackDelay();
 		}			
 	}
 }
@@ -148,7 +152,7 @@ void AEnemyBase::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedCompone
 		{
 			bOverlappingCombatSphere = false;
 
-			if (State != EEnemyState::EES_Attacking)
+			if (State == EEnemyState::EES_Attacking)
 			{
 				MoveToTarget(MainCharacter);
 				CombatTarget = nullptr;
@@ -255,11 +259,9 @@ void AEnemyBase::Attack()
 void AEnemyBase::AttackEnd()
 {
 	bAttacking = false;
+
 	if (bOverlappingCombatSphere)
-	{
-		float AttackTime = FMath::RandRange(AttackMinTime, AttackMaxTime);
-		GetWorldTimerManager().SetTimer(AttackTimer, this, &AEnemyBase::Attack, AttackTime);
-	}		
+		SetAttackDelay();
 }
 
 void AEnemyBase::PlaySwingSound()
@@ -316,4 +318,10 @@ bool AEnemyBase::IsAlive()
 void AEnemyBase::Disappear()
 {
 	Destroy();
+}
+
+void AEnemyBase::SetAttackDelay()
+{
+	float AttackTime = FMath::RandRange(AttackMinTime, AttackMaxTime);
+	GetWorldTimerManager().SetTimer(AttackTimer, this, &AEnemyBase::Attack, AttackTime);
 }
