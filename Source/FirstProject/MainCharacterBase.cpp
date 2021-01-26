@@ -344,6 +344,14 @@ void AMainCharacterBase::IncrementCoins(int32 Amount)
 	Coins += Amount;
 }
 
+void AMainCharacterBase::IncrementHealth(float Amount)
+{
+	if ((Health + Amount) >= MaxHealth)
+		Health = MaxHealth;
+	else
+		Health += Amount;
+}
+
 void AMainCharacterBase::Die()
 {
 	if (!IsAlive()) return;
@@ -443,4 +451,39 @@ bool AMainCharacterBase::IsAlive()
 bool AMainCharacterBase::IsSprinting()
 {
 	return MovementStatus == EMovementStatus::EMS_Sprinting;
+}
+
+void AMainCharacterBase::UpdateCombatTarget()
+{
+	TArray<AActor*> OverlappingActors;
+	
+	GetOverlappingActors(OverlappingActors, EnemyFilter); //AEnemyBase::StaticClass()
+
+	if (OverlappingActors.Num() == 0)
+	{
+		if (GetPlayerController())
+			GetPlayerController()->RemoveEnemyHealthBar();
+
+		return;
+	}
+
+	float MinDistance = 1000.f;
+	float CurrentDistance = 0.f;
+	AActor* ClosestTarget = nullptr;
+
+	for (AActor* Target : OverlappingActors)
+	{
+		CurrentDistance = (Target->GetActorLocation() - GetActorLocation()).Size();
+		if (CurrentDistance < MinDistance) 
+		{
+			MinDistance = CurrentDistance;
+			ClosestTarget = Target;
+		}
+	}
+
+	SetCombatTarget(Cast<AEnemyBase>(ClosestTarget));
+
+	if (PlayerController)
+		PlayerController->DisplayEnemyHealthBar();	
+	
 }

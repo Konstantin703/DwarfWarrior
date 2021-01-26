@@ -4,6 +4,8 @@
 #include "Item.h"
 #include "Pickup.generated.h"
 
+class AMainCharacterBase;
+
 /**
  *  Object adding coins to the main charater
  */
@@ -14,9 +16,6 @@ class FIRSTPROJECT_API APickup : public AItem
 public:
 	APickup();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Coins")
-	int32 CoinAmount;
-
 	virtual void OnOverlapBegin(
 		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult
@@ -24,4 +23,6 @@ public:
 
 	virtual void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 	
+	UFUNCTION(BlueprintImplementableEvent, Category = "Pickup")
+	void OnPickupBP(AMainCharacterBase* Target);
 };

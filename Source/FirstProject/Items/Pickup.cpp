@@ -6,8 +6,6 @@ APickup::APickup()
 {
 	CollisionVolume->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	CollisionVolume->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
-
-	CoinAmount = 5;
 }
 
 void APickup::OnOverlapBegin(
@@ -21,10 +19,10 @@ void APickup::OnOverlapBegin(
 	{
 		AMainCharacterBase* MainCharacter = Cast<AMainCharacterBase>(OtherActor);
 		if (MainCharacter)
-			MainCharacter->IncrementCoins(CoinAmount);
-			
+			OnPickupBP(MainCharacter);
+		
 		Destroy();
-	}
+	}		
 }
 
 void APickup::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)

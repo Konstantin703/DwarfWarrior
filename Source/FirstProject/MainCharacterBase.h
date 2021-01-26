@@ -125,6 +125,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat")
 	FVector CombatTargetLocation;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	TSubclassOf<AEnemyBase> EnemyFilter;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -176,7 +179,10 @@ public:
 
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser) override;
 
+	UFUNCTION(BlueprintCallable)
 	void IncrementCoins(int32 Amount);
+	UFUNCTION(BlueprintCallable)
+	void IncrementHealth(float Amount);
 
 	void Die();
 
@@ -213,6 +219,7 @@ public:
 	FRotator GetLookAtRotationYaw(FVector Target);
 
 	bool IsAlive();
-
 	bool IsSprinting();
+
+	void UpdateCombatTarget();
 };
