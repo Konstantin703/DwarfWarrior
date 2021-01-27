@@ -100,6 +100,8 @@ public:
 	FORCEINLINE void SetState(EEnemyState InState) { State = InState; }
 	FORCEINLINE EEnemyState GetState() { return State; }
 
+	FORCEINLINE void SetAIController(AAIController* InController) { AIController = InController; }
+
 	UFUNCTION()
 	virtual void AgroOnOverlapBegin(
 		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
