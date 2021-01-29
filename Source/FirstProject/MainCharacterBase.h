@@ -222,4 +222,6 @@ public:
 	bool IsSprinting();
 
 	void UpdateCombatTarget();
+
+	void SwitchLevel(FName LevelName);
 };

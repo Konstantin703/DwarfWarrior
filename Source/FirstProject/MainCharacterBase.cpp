@@ -487,3 +487,18 @@ void AMainCharacterBase::UpdateCombatTarget()
 		PlayerController->DisplayEnemyHealthBar();	
 	
 }
+
+void AMainCharacterBase::SwitchLevel(FName LevelName)
+{
+	UWorld* World = GetWorld();
+
+	if (World)
+	{
+		FString CurrentLevel = World->GetMapName();
+		FName CurrentLevelName(*CurrentLevel);
+		
+		if (CurrentLevelName != LevelName)
+			UGameplayStatics::OpenLevel(World, LevelName);
+
+	}
+}
