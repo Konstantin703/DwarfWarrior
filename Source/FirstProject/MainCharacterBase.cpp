@@ -95,6 +95,9 @@ void AMainCharacterBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (!IsAlive())
+		return;
+
 	float DeltaStamina = StaminaDrainRate * DeltaTime;
 
 	switch (StaminaStatus)
@@ -227,8 +230,8 @@ void AMainCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	PlayerInputComponent->BindAxis("TurnRate", this, &AMainCharacterBase::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AMainCharacterBase::LookUpAtRate);
 
-	PlayerInputComponent->BindAction("ESC", EInputEvent::IE_Pressed, this, &AMainCharacterBase::EnablePauseMenu);
-	PlayerInputComponent->BindAction("ESC", EInputEvent::IE_Released, this, &AMainCharacterBase::DisablePauseMenu);
+	PlayerInputComponent->BindAction("ESC", EInputEvent::IE_Pressed, this, &AMainCharacterBase::EnablePauseMenu).bExecuteWhenPaused = true;
+	PlayerInputComponent->BindAction("ESC", EInputEvent::IE_Released, this, &AMainCharacterBase::DisablePauseMenu).bExecuteWhenPaused = true;
 
 }
 
@@ -382,8 +385,10 @@ void AMainCharacterBase::Die()
 		AnimInstance->Montage_JumpToSection(FName("Death"));
 	}
 	SetMovementStatus(EMovementStatus::EMS_Dead);
-	DestroyPlayerInputComponent();
-	//InputComponent->ClearBindingValues();
+
+	FTimerHandle PauseTimeHandle;
+	
+	GetWorldTimerManager().SetTimer(PauseTimeHandle, PlayerController, &AMainPlayerController::DisplayPauseMenu, 5.f);
 }
 
 void AMainCharacterBase::DeathEnd()
@@ -476,7 +481,7 @@ void AMainCharacterBase::UpdateCombatTarget()
 {
 	TArray<AActor*> OverlappingActors;
 	
-	GetOverlappingActors(OverlappingActors, EnemyFilter); //AEnemyBase::StaticClass()
+	GetOverlappingActors(OverlappingActors, EnemyFilter);
 
 	if (OverlappingActors.Num() == 0)
 	{
@@ -573,4 +578,8 @@ void AMainCharacterBase::LoadGame(bool SetPosition)
 			}			
 		}			
 	}
+
+	SetMovementStatus(EMovementStatus::EMS_Normal);
+	GetMesh()->bPauseAnims = false;
+	GetMesh()->bNoSkeletonUpdate = false;
 }

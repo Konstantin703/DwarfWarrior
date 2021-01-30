@@ -41,11 +41,17 @@ public:
 	void DisplayEnemyHealthBar();
 	void RemoveEnemyHealthBar();
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "HUD")
 	void DisplayPauseMenu();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "HUD")
 	void RemovePauseMenu();
+
 	void TogglePauseMenu();
 
 	FORCEINLINE void SetEnemyLocation(FVector InLocation) { EnemyLocation = InLocation; }
+
+	
+
 
 protected:
 	virtual void BeginPlay() override;

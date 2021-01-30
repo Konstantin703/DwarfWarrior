@@ -5,7 +5,7 @@
 AFloorSwitch::AFloorSwitch()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	TriggerBox = CreateDefaultSubobject<UBoxComponent>(TEXT("TriggerBox"));
 	RootComponent = TriggerBox;
@@ -39,20 +39,11 @@ void AFloorSwitch::BeginPlay()
 	InitialSwitchLocation = FloorSwitch->GetComponentLocation();
 }
 
-// Called every frame
-void AFloorSwitch::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
 void AFloorSwitch::OnOverlapBegin(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,	UPrimitiveComponent* OtherComp, 
 	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult
 )
 {
-	UE_LOG(LogTemp, Warning, TEXT("Overlap begin. \nOverlapped component: %s\nOtherActor: %s\nOther component: %s"),
-			*OverlappedComponent->GetName(), *OtherActor->GetName(), *OtherComp->GetName());
 	if (!bCharacterOnSwitch)
 		bCharacterOnSwitch = true;
 	RaiseDoor();
@@ -61,8 +52,6 @@ void AFloorSwitch::OnOverlapBegin(
 
 void AFloorSwitch::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Overlap END. \nOverlapped component: %s\nOtherActor: %s\nOther component: %s"),
-		*OverlappedComponent->GetName(), *OtherActor->GetName(), *OtherComp->GetName());
 	if (bCharacterOnSwitch)
 		bCharacterOnSwitch = false;
 	GetWorldTimerManager().SetTimer(SwitchHandle, this, &AFloorSwitch::CloseDoor, SwitchTime);

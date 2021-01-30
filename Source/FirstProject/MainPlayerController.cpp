@@ -71,16 +71,28 @@ void AMainPlayerController::RemoveEnemyHealthBar()
 		EnemyHealthBar->SetVisibility(ESlateVisibility::Hidden);
 }
 
-void AMainPlayerController::DisplayPauseMenu()
+void AMainPlayerController::DisplayPauseMenu_Implementation()
 {
 	if (PauseMenu)
+	{
 		PauseMenu->SetVisibility(ESlateVisibility::Visible);
+		FInputModeGameAndUI InputModeGameAndUI;
+		SetInputMode(InputModeGameAndUI);
+		bShowMouseCursor = true;
+		SetPause(true);
+	}
 }
 
-void AMainPlayerController::RemovePauseMenu()
+void AMainPlayerController::RemovePauseMenu_Implementation()
 {
 	if (PauseMenu)
-		PauseMenu->SetVisibility(ESlateVisibility::Hidden);
+	{
+		//PauseMenu->SetVisibility(ESlateVisibility::Hidden);
+		FInputModeGameOnly InputModeGameOnly;
+		SetInputMode(InputModeGameOnly);
+		bShowMouseCursor = false;
+		SetPause(false);
+	}
 }
 
 void AMainPlayerController::TogglePauseMenu()
