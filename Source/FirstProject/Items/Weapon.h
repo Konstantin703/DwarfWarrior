@@ -25,6 +25,9 @@ class FIRSTPROJECT_API AWeapon : public AItem
 public:
 	AWeapon();
 
+	UPROPERTY(EditDefaultsOnly, Category = "SaveData")
+	FString WeaponName;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Item")
 	EWeaponState WeaponState;
 
@@ -66,6 +69,8 @@ public:
 	virtual void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 
 	void Equip(AMainCharacterBase* Character);
+
+	FORCEINLINE FString GetWeaponName() { return WeaponName; }
 
 	FORCEINLINE void SetWeaponState(EWeaponState InState) { WeaponState = InState; }
 	FORCEINLINE EWeaponState GetWeaponState() { return WeaponState; }	

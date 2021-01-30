@@ -14,6 +14,7 @@ class USoundCue;
 class AEnemyBase;
 class AController;
 class AMainPlayerController;
+class AItemStorage;
 
 UENUM(BlueprintType)
 enum class EMovementStatus : uint8
@@ -106,6 +107,7 @@ public:
 	bool bMovingRight;
 
 	bool bActionEnabled;
+	bool bPauseMenuEnabled;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anims")
 	bool bAttacking;
@@ -128,6 +130,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	TSubclassOf<AEnemyBase> EnemyFilter;
 
+	UPROPERTY(EditDefaultsOnly, Category = "SaveData")
+	TSubclassOf<AItemStorage> WeaponStorage;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -139,7 +144,7 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	FORCEINLINE AMainPlayerController* GetPlayerController() { return PlayerController; }
+	FORCEINLINE AMainPlayerController* GetPlayerController() const { return PlayerController; }
 
 	/** Called for forward/backward input */
 	void MoveForward(float InValue);
@@ -162,6 +167,9 @@ public:
 
 	void ActionEnabled();
 	void ActionDisabled();
+
+	void EnablePauseMenu();
+	void DisablePauseMenu();
 
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
@@ -224,4 +232,9 @@ public:
 	void UpdateCombatTarget();
 
 	void SwitchLevel(FName LevelName);
+
+	UFUNCTION(BlueprintCallable)
+	void SaveGame();
+	UFUNCTION(BlueprintCallable)
+	void LoadGame(bool SetPosition);
 };

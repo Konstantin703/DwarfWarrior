@@ -10,7 +10,7 @@ void AMainPlayerController::BeginPlay()
 
 	HUDOverlay->AddToViewport();
 	HUDOverlay->SetVisibility(ESlateVisibility::Visible);
-
+	// initialization of enemy health bar
 	if (WEnemyHealthBar)
 	{
 		EnemyHealthBar = CreateWidget<UUserWidget>(this, WEnemyHealthBar);
@@ -30,6 +30,17 @@ void AMainPlayerController::BeginPlay()
 	WidgetShiftY = 100.f;	
 
 	SizeInViewPort = FVector2D(WidgetLength, WidgetWidth);
+
+	// initialization of pause menu
+	if (WPauseMenu)
+	{
+		PauseMenu = CreateWidget<UUserWidget>(this, WPauseMenu);
+		if (PauseMenu)
+		{
+			PauseMenu->AddToViewport();
+			PauseMenu->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
 }
 
 void AMainPlayerController::Tick(float DeltaTime)
@@ -51,17 +62,31 @@ void AMainPlayerController::Tick(float DeltaTime)
 void AMainPlayerController::DisplayEnemyHealthBar()
 {
 	if (EnemyHealthBar)
-	{
-		bEnemyHealthBarVisible = true;
 		EnemyHealthBar->SetVisibility(ESlateVisibility::Visible);
-	}
 }
 
 void AMainPlayerController::RemoveEnemyHealthBar()
 {
 	if (EnemyHealthBar)
-	{
-		bEnemyHealthBarVisible = false;
 		EnemyHealthBar->SetVisibility(ESlateVisibility::Hidden);
-	}
+}
+
+void AMainPlayerController::DisplayPauseMenu()
+{
+	if (PauseMenu)
+		PauseMenu->SetVisibility(ESlateVisibility::Visible);
+}
+
+void AMainPlayerController::RemovePauseMenu()
+{
+	if (PauseMenu)
+		PauseMenu->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void AMainPlayerController::TogglePauseMenu()
+{
+	if (PauseMenu->IsVisible())
+		RemovePauseMenu();
+	else
+		DisplayPauseMenu();
 }

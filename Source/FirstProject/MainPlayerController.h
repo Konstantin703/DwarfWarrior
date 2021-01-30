@@ -23,21 +23,27 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Widgets")
 	UUserWidget* EnemyHealthBar;
 
-	bool bEnemyHealthBarVisible;
-
 	FVector EnemyLocation;
 
 	float WidgetLength;
 	float WidgetWidth;
 
 	float WidgetShiftX;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Widgets")
 	float WidgetShiftY;	
 
 	FVector2D SizeInViewPort;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<UUserWidget> WPauseMenu;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Widgets")
+	UUserWidget* PauseMenu;
+
 	void DisplayEnemyHealthBar();
 	void RemoveEnemyHealthBar();
+
+	void DisplayPauseMenu();
+	void RemovePauseMenu();
+	void TogglePauseMenu();
 
 	FORCEINLINE void SetEnemyLocation(FVector InLocation) { EnemyLocation = InLocation; }
 
