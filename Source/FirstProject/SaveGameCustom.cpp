@@ -7,4 +7,5 @@ USaveGameCustom::USaveGameCustom()
 	UserIndex = 0;
 
 	CharacterStats.WeaponName = TEXT("");
+	CharacterStats.LevelName = TEXT("");
 }

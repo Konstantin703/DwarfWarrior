@@ -237,4 +237,6 @@ public:
 	void SaveGame();
 	UFUNCTION(BlueprintCallable)
 	void LoadGame(bool SetPosition);
+
+	void LoadGameNoSwitch();
 };

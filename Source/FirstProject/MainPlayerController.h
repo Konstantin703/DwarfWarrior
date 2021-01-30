@@ -50,8 +50,7 @@ public:
 
 	FORCEINLINE void SetEnemyLocation(FVector InLocation) { EnemyLocation = InLocation; }
 
-	
-
+	void GameModeOnly();
 
 protected:
 	virtual void BeginPlay() override;

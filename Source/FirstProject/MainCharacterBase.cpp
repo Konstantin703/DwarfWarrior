@@ -87,7 +87,12 @@ void AMainCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	PlayerController = Cast<AMainPlayerController>(GetController());	
+	PlayerController = Cast<AMainPlayerController>(GetController());
+
+	LoadGameNoSwitch();
+
+	if (PlayerController)
+		PlayerController->GameModeOnly();
 }
 
 // Called every frame
@@ -537,6 +542,11 @@ void AMainCharacterBase::SaveGame()
 	SaveGameInstance->CharacterStats.MaxStamina = MaxStamina;
 	SaveGameInstance->CharacterStats.Coins = Coins;
 
+	FString MapName = GetWorld()->GetMapName();
+	MapName.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);
+
+	SaveGameInstance->CharacterStats.LevelName = MapName;
+
 	SaveGameInstance->CharacterStats.CharacterLocation = GetActorLocation();
 	SaveGameInstance->CharacterStats.CharacterRotation = GetActorRotation();
 
@@ -577,6 +587,43 @@ void AMainCharacterBase::LoadGame(bool SetPosition)
 				WeaponToEquip->Equip(this);
 			}			
 		}			
+	}
+
+	SetMovementStatus(EMovementStatus::EMS_Normal);
+	GetMesh()->bPauseAnims = false;
+	GetMesh()->bNoSkeletonUpdate = false;
+
+	if (LoadGameInstance->CharacterStats.LevelName != TEXT(""))
+	{
+		FName LevelName(*LoadGameInstance->CharacterStats.LevelName);
+		SwitchLevel(LevelName);
+	}
+}
+
+void AMainCharacterBase::LoadGameNoSwitch()
+{
+	USaveGameCustom* LoadGameInstance = Cast<USaveGameCustom>(UGameplayStatics::CreateSaveGameObject(USaveGameCustom::StaticClass()));
+
+	LoadGameInstance = Cast<USaveGameCustom>(UGameplayStatics::LoadGameFromSlot(LoadGameInstance->GetPlayerName(), LoadGameInstance->GetUserIndex()));
+
+	Health = LoadGameInstance->GetCharacterStats().Health;
+	MaxHealth = LoadGameInstance->GetCharacterStats().MaxHealth;
+	Stamina = LoadGameInstance->GetCharacterStats().Stamina;
+	MaxStamina = LoadGameInstance->GetCharacterStats().MaxStamina;
+	Coins = LoadGameInstance->GetCharacterStats().Coins;
+
+	if (WeaponStorage)
+	{
+		AItemStorage* Weapons = GetWorld()->SpawnActor<AItemStorage>(WeaponStorage);
+		if (Weapons)
+		{
+			FString WeaponName = LoadGameInstance->GetCharacterStats().WeaponName;
+			if (Weapons->GetWeaponMap().Contains(WeaponName))
+			{
+				AWeapon* WeaponToEquip = GetWorld()->SpawnActor<AWeapon>(Weapons->GetWeaponMap()[WeaponName]);
+				WeaponToEquip->Equip(this);
+			}
+		}
 	}
 
 	SetMovementStatus(EMovementStatus::EMS_Normal);
