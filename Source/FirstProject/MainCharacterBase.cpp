@@ -88,11 +88,12 @@ void AMainCharacterBase::BeginPlay()
 	Super::BeginPlay();
 
 	PlayerController = Cast<AMainPlayerController>(GetController());
-
+	
 	LoadGameNoSwitch();
 
 	if (PlayerController)
 		PlayerController->GameModeOnly();
+	
 }
 
 // Called every frame
@@ -528,7 +529,6 @@ void AMainCharacterBase::SwitchLevel(FName LevelName)
 		
 		if (CurrentLevelName != LevelName)
 			UGameplayStatics::OpenLevel(World, LevelName);
-
 	}
 }
 
@@ -581,7 +581,7 @@ void AMainCharacterBase::LoadGame(bool SetPosition)
 		if (Weapons)
 		{
 			FString WeaponName = LoadGameInstance->GetCharacterStats().WeaponName;
-			if (Weapons->GetWeaponMap().Contains(WeaponName))
+			if (WeaponName != TEXT(""))
 			{
 				AWeapon* WeaponToEquip = GetWorld()->SpawnActor<AWeapon>(Weapons->GetWeaponMap()[WeaponName]);
 				WeaponToEquip->Equip(this);
@@ -603,8 +603,15 @@ void AMainCharacterBase::LoadGame(bool SetPosition)
 void AMainCharacterBase::LoadGameNoSwitch()
 {
 	USaveGameCustom* LoadGameInstance = Cast<USaveGameCustom>(UGameplayStatics::CreateSaveGameObject(USaveGameCustom::StaticClass()));
-
-	LoadGameInstance = Cast<USaveGameCustom>(UGameplayStatics::LoadGameFromSlot(LoadGameInstance->GetPlayerName(), LoadGameInstance->GetUserIndex()));
+	
+	if (LoadGameInstance = Cast<USaveGameCustom>(UGameplayStatics::LoadGameFromSlot(LoadGameInstance->GetPlayerName(), LoadGameInstance->GetUserIndex())))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Successfully loaded"));
+	}
+	else
+	{
+		return;
+	}
 
 	Health = LoadGameInstance->GetCharacterStats().Health;
 	MaxHealth = LoadGameInstance->GetCharacterStats().MaxHealth;
@@ -618,7 +625,7 @@ void AMainCharacterBase::LoadGameNoSwitch()
 		if (Weapons)
 		{
 			FString WeaponName = LoadGameInstance->GetCharacterStats().WeaponName;
-			if (Weapons->GetWeaponMap().Contains(WeaponName))
+			if (WeaponName != TEXT(""))
 			{
 				AWeapon* WeaponToEquip = GetWorld()->SpawnActor<AWeapon>(Weapons->GetWeaponMap()[WeaponName]);
 				WeaponToEquip->Equip(this);

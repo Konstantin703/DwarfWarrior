@@ -16,8 +16,8 @@ AWeapon::AWeapon()
 
 	CombatCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("CombatCollsion"));
 	CombatCollision->SetupAttachment(GetRootComponent());
-	// temporary true for testing
-	bWeaponParticle = true;
+	
+	bWeaponParticle = false;
 
 	WeaponState = EWeaponState::EWS_Pickup;
 
